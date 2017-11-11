@@ -86,16 +86,6 @@ public class ApplicationWindow {
 		filemenu.setMnemonic('F');
 		menuBar.add(filemenu);
 		
-		fileopenitem = new JMenuItem("Open");
-		fileopenitem.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				ctx.open();
-			}
-		});
-		fileopenitem.setMnemonic('O');
-		filemenu.add(fileopenitem);
-		
 		walletmenu = new JMenu("Wallet");
 		walletmenu.setMnemonic('W');
 		menuBar.add(walletmenu);

@@ -12,6 +12,12 @@ dependencies {
     api 'org.apache.commons:commons-math3:3.6.1'
     api 'commons-io:commons-io:2.4'
     api 'com.github.iotaledger:iota.lib.java:v0.9.6'
+    api 'org.apache.commons:commons-configuration2:2.2'
+    api 'commons-beanutils:commons-beanutils:1.9.3'
+    api 'ch.qos.logback:logback-classic:1.2.3'
+    api 'org.jasypt:jasypt:1.9.2'
+    
+    implementation 'org.projectlombok:lombok:1.16.18'
 
     testImplementation 'junit:junit:4.12'
 }
