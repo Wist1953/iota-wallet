@@ -6,6 +6,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import javax.swing.border.BevelBorder;
+
+import eukaryote.iotawallet.ApiWrapper;
+import eukaryote.iotawallet.AppContext;
+
 import javax.swing.JTabbedPane;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
@@ -14,17 +18,31 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.FlowLayout;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class ApplicationWindow {
 
 	private JFrame frame;
 	private final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+	private JMenuBar menuBar;
+	private JMenu filemenu;
+	private JMenu walletmenu;
+	private JMenu toolsmenu;
+	private JMenu helpmenu;
+	private JMenuItem fileopenitem;
+	private JMenuItem helpaboutitem;
+	private AppContext ctx;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					ApplicationWindow window = new ApplicationWindow();
@@ -40,6 +58,7 @@ public class ApplicationWindow {
 	 * Create the application.
 	 */
 	public ApplicationWindow() {
+		ctx = new AppContext();
 		initialize();
 	}
 
@@ -59,6 +78,39 @@ public class ApplicationWindow {
 		tabbedPane.addTab("History", null, historypanel, null);
 		tabbedPane.addTab("Send", null, new JPanel(), null);
 		tabbedPane.addTab("Recieve", null, new JPanel(), null);
+		
+		menuBar = new JMenuBar();
+		frame.getContentPane().add(menuBar, BorderLayout.NORTH);
+		
+		filemenu = new JMenu("File");
+		filemenu.setMnemonic('F');
+		menuBar.add(filemenu);
+		
+		fileopenitem = new JMenuItem("Open");
+		fileopenitem.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				ctx.open();
+			}
+		});
+		fileopenitem.setMnemonic('O');
+		filemenu.add(fileopenitem);
+		
+		walletmenu = new JMenu("Wallet");
+		walletmenu.setMnemonic('W');
+		menuBar.add(walletmenu);
+		
+		toolsmenu = new JMenu("Tools");
+		toolsmenu.setMnemonic('T');
+		menuBar.add(toolsmenu);
+		
+		helpmenu = new JMenu("Help");
+		helpmenu.setMnemonic('H');
+		menuBar.add(helpmenu);
+		
+		helpaboutitem = new JMenuItem("About");
+		helpaboutitem.setMnemonic('A');
+		helpmenu.add(helpaboutitem);
 	}
 
 }
