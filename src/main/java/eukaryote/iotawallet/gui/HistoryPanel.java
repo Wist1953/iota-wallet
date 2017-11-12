@@ -5,10 +5,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -32,6 +34,23 @@ public class HistoryPanel extends JPanel {
 
 		this.model = new HistoryTableModel();
 		table = new JTable(model);
+		table.getColumnModel().getColumn(0).setMinWidth(18);
+		table.getColumnModel().getColumn(0).setMaxWidth(18);
+		
+		// render icons properly
+		table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+			@Override
+		    protected void setValue(Object value) {
+		        if( value instanceof ImageIcon ) {
+		            setIcon((ImageIcon)value);
+		            setText("");
+		        } else {
+		            setIcon(null);
+		            super.setValue(value);
+		        }
+		    }
+		});
+		
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent mouseEvent) {
@@ -45,9 +64,7 @@ public class HistoryPanel extends JPanel {
 		});
 		table.setFillsViewportHeight(true);
 		scrollPane.setViewportView(table);
-
-		for (int i = 0; i < 100; i++)
-			this.getModel().addEntry(new HistoryEntry(i, "tag" + i, i + 1000, i + 2000));
+		
 	}
 
 	/**
@@ -62,12 +79,11 @@ public class HistoryPanel extends JPanel {
 		System.out.println(e);
 	}
 
-	@SuppressWarnings("serial")
 	public class HistoryTableModel extends AbstractTableModel {
-		private String[] columns = { "Date", "Tag", "Amount", "Balance" };
+		private String[] columns = { "", "Date", "Tag", "Amount", "Balance" };
 
 		private List<HistoryEntry> history = new ArrayList<>();
-
+		
 		@Override
 		public int getColumnCount() {
 			return columns.length;

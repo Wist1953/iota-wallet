@@ -2,6 +2,11 @@ package eukaryote.iotawallet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
 
@@ -15,13 +20,17 @@ import org.jasypt.util.text.BasicTextEncryptor;
 
 import jota.IotaAPI;
 import jota.dto.response.GetNodeInfoResponse;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AppContext {
 
+	@Getter
 	private PropertiesConfiguration config;
 	private String[] hosts;
+
+	@Getter
 	private ApiWrapper api = null;
 	private String seed;
 
@@ -45,7 +54,7 @@ public class AppContext {
 
 			throw new Error();
 		}
-		
+
 		log.info("Loaded config");
 
 		File seedfile = new File(config.getString("seedfile"));
@@ -53,11 +62,12 @@ public class AppContext {
 		SeedStore ss = new SeedStore(seedfile);
 
 		this.seed = ss.getSeed();
-		
+
 		connectToHost();
 	}
 
 	public void connectToHost() {
+		ExecutorService executor = Executors.newCachedThreadPool();
 
 		hosts = StringUtils.split(config.getString("lightnodes"), ';');
 		String hoststr = null;
@@ -68,13 +78,27 @@ public class AppContext {
 			String port = StringUtils.split(hoststr, ":")[1];
 
 			try {
-				api = new ApiWrapper(new IotaAPI.Builder().protocol("http").host(host).port(port).build(), seed);
+				log.info("Attempting to connect to node {}", hoststr);
+				AppContext self = this;
+
+				Callable<ApiWrapper> task = new Callable<ApiWrapper>() {
+					@Override
+					public ApiWrapper call() {
+						return new ApiWrapper(self,
+								new IotaAPI.Builder().protocol("http").host(host).port(port).build(), seed);
+					}
+				};
+				Future<ApiWrapper> future = executor.submit(task);
+				
+				api = future.get(3, TimeUnit.SECONDS);
+
 				GetNodeInfoResponse nodeInfo = api.getApi().getNodeInfo();
 
 				// node not synced
 				if (nodeInfo.getLatestMilestoneIndex() != nodeInfo.getLatestSolidSubtangleMilestoneIndex())
 					continue;
 			} catch (Exception e) {
+				log.info("", e);
 				api = null;
 			}
 		}

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -34,10 +35,12 @@ public class SeedStore {
 	public SeedStore(File seedfile) {
 		this.seedfile = seedfile;
 		if (seedfile.exists()) {
-			// decrypte seed from file
+			// decrypt seed from file
+			
 
-			char[] pass = passwordDialog("Enter password to decrypt wallet:");
 			do {
+				char[] pass = passwordDialog("Enter password to decrypt wallet:");
+
 				try {
 					seed = getSeed(pass);
 
@@ -48,13 +51,34 @@ public class SeedStore {
 					JOptionPane.showMessageDialog(null, "Password was invalid!", "Decryption Error",
 							JOptionPane.ERROR_MESSAGE);
 				} catch (IOException e) {
-					JOptionPane.showMessageDialog(null, e, "Decryption Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
 				}
-			} while (seed != null);
+			} while (seed == null);
 		} else {
-			log.info("Generating seed");
-			String seed = generateSeed();
-			seedConfirmDialog(seed);
+
+			String[] options = new String[] { "Generate new Wallet", "Restore from Seed" };
+			int option = JOptionPane.showOptionDialog(null, "Are you restoring a Wallet?", "Wallet",
+					JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+			String seed;
+			if (option == 0) {
+				log.info("Generating seed");
+				seed = generateSeed();
+				seedConfirmDialog(seed);
+			} else {
+				seed = new String(passwordDialog("Enter your seed:")).trim();
+			}
+			char[] pass;
+			while (true) {
+				pass = passwordDialog("Enter a password to protect your wallet:");
+				if (Arrays.equals(pass, passwordDialog("Confirm password:")))
+					break;
+			}
+
+			try {
+				saveSeed(seed, pass);
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, e, "Error", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 		log.info("SeedStore initialized.");
 	}
@@ -80,7 +104,7 @@ public class SeedStore {
 		while (true) {
 			JPanel panel = new JPanel();
 			JLabel label = new JLabel(
-					"Write your seed down somewhere safe! It can be used to restore access to your funds.\n"
+					"Write your seed down somewhere safe! It can be used to restore access to your funds	.\n"
 							+ "Do NOT show anyone your seed. Do NOT store your seed electronically. \nSeed:\n");
 			JTextField pass = new JTextField();
 			pass.setText(seed);
@@ -92,7 +116,7 @@ public class SeedStore {
 			JOptionPane.showMessageDialog(null, panel);
 
 			char[] seedver = passwordDialog("Type your seed to confirm that you have your seed written down properly:");
-			
+
 			if (seed.equals(new String(seedver)))
 				break;
 		}

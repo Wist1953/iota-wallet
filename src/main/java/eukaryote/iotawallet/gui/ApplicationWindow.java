@@ -36,6 +36,7 @@ public class ApplicationWindow {
 	private JMenuItem fileopenitem;
 	private JMenuItem helpaboutitem;
 	private AppContext ctx;
+	private HistoryPanel historypanel;
 
 	/**
 	 * Launch the application.
@@ -60,6 +61,9 @@ public class ApplicationWindow {
 	public ApplicationWindow() {
 		ctx = new AppContext();
 		initialize();
+		
+		for (HistoryEntry e : ctx.getApi().getHistory())
+			historypanel.getModel().addEntry(e);
 	}
 
 	/**
@@ -68,13 +72,13 @@ public class ApplicationWindow {
 	private void initialize() {
 
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+		frame.setBounds(100, 100, 600, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
-		JPanel historypanel = new HistoryPanel();
+		historypanel = new HistoryPanel();
 		tabbedPane.addTab("History", null, historypanel, null);
 		tabbedPane.addTab("Send", null, new JPanel(), null);
 		tabbedPane.addTab("Recieve", null, new JPanel(), null);
