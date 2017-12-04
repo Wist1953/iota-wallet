@@ -1,7 +1,9 @@
 package eukaryote.iotawallet.gui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,21 +38,21 @@ public class HistoryPanel extends JPanel {
 		table = new JTable(model);
 		table.getColumnModel().getColumn(0).setMinWidth(18);
 		table.getColumnModel().getColumn(0).setMaxWidth(18);
-		
+
 		// render icons properly
 		table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
 			@Override
-		    protected void setValue(Object value) {
-		        if( value instanceof ImageIcon ) {
-		            setIcon((ImageIcon)value);
-		            setText("");
-		        } else {
-		            setIcon(null);
-		            super.setValue(value);
-		        }
-		    }
+			protected void setValue(Object value) {
+				if (value instanceof ImageIcon) {
+					setIcon((ImageIcon) value);
+					setText("");
+				} else {
+					setIcon(null);
+					super.setValue(value);
+				}
+			}
 		});
-		
+
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent mouseEvent) {
@@ -64,7 +66,7 @@ public class HistoryPanel extends JPanel {
 		});
 		table.setFillsViewportHeight(true);
 		scrollPane.setViewportView(table);
-		
+
 	}
 
 	/**
@@ -73,7 +75,7 @@ public class HistoryPanel extends JPanel {
 	public HistoryTableModel getModel() {
 		return model;
 	}
-	
+
 	private void handleTransactionClicked(HistoryEntry e) {
 		// TODO: show popup
 		System.out.println(e);
@@ -83,7 +85,7 @@ public class HistoryPanel extends JPanel {
 		private String[] columns = { "", "Date", "Tag", "Amount", "Balance" };
 
 		private List<HistoryEntry> history = new ArrayList<>();
-		
+
 		@Override
 		public int getColumnCount() {
 			return columns.length;
@@ -100,6 +102,7 @@ public class HistoryPanel extends JPanel {
 		}
 
 		public void addEntry(HistoryEntry entry) {
+
 			this.history.add(0, entry);
 			this.fireTableDataChanged();
 		}
@@ -122,6 +125,14 @@ public class HistoryPanel extends JPanel {
 		 */
 		public void setHistory(List<HistoryEntry> history) {
 			this.history = history;
+			Collections.sort(history, new Comparator<HistoryEntry>() {
+
+				@Override
+				public int compare(HistoryEntry arg0, HistoryEntry arg1) {
+					return -Long.compare(arg0.epoch, arg1.epoch);
+				}
+
+			});
 			this.fireTableDataChanged();
 		}
 

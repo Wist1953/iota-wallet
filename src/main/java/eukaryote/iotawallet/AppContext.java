@@ -2,6 +2,7 @@ package eukaryote.iotawallet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jasypt.util.text.BasicTextEncryptor;
 
+import eukaryote.iotawallet.gui.ApplicationWindow;
 import jota.IotaAPI;
 import jota.dto.response.GetNodeInfoResponse;
 import lombok.Getter;
@@ -34,7 +36,11 @@ public class AppContext {
 	private ApiWrapper api = null;
 	private String seed;
 
-	public AppContext() {
+	@Getter
+	private ApplicationWindow applicationWindow;
+
+	public AppContext(ApplicationWindow applicationWindow) {
+		this.applicationWindow = applicationWindow;
 		Configurations configs = new Configurations();
 		File configfile = new File("wallet.cfg");
 
@@ -60,10 +66,13 @@ public class AppContext {
 		File seedfile = new File(config.getString("seedfile"));
 
 		SeedStore ss = new SeedStore(seedfile);
-
 		this.seed = ss.getSeed();
 
 		connectToHost();
+
+		log.info("Starting timer, update every {} ms.", config.getLong("updateintervalmillis"));
+		Timer timer = new Timer();
+		timer.schedule(new UpdateThread(this), 0, config.getLong("updateintervalmillis"));
 	}
 
 	public void connectToHost() {
@@ -89,7 +98,7 @@ public class AppContext {
 					}
 				};
 				Future<ApiWrapper> future = executor.submit(task);
-				
+
 				api = future.get(3, TimeUnit.SECONDS);
 
 				GetNodeInfoResponse nodeInfo = api.getApi().getNodeInfo();

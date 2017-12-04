@@ -36,7 +36,6 @@ public class SeedStore {
 		this.seedfile = seedfile;
 		if (seedfile.exists()) {
 			// decrypt seed from file
-			
 
 			do {
 				char[] pass = passwordDialog("Enter password to decrypt wallet:");
@@ -47,7 +46,8 @@ public class SeedStore {
 					// if no errors but still null, that means user cancelled. leave seed null.
 					if (seed == null)
 						break;
-				} catch (EncryptionInitializationException | EncryptionOperationNotPossibleException e) {
+				} catch (IllegalArgumentException | EncryptionInitializationException
+						| EncryptionOperationNotPossibleException e) {
 					JOptionPane.showMessageDialog(null, "Password was invalid!", "Decryption Error",
 							JOptionPane.ERROR_MESSAGE);
 				} catch (IOException e) {

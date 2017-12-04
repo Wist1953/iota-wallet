@@ -22,7 +22,10 @@ public class HistoryEntry {
 
 	private static final ImageIcon confirmedicon = new ImageIcon(ClassLoader.getSystemResource("checkmarkgreen.png"));
 
-	public HistoryEntry(String timestamp, String tag, long amount, long balance, boolean confirmed) {
+	public long epoch;
+
+	public HistoryEntry(long epoch, String timestamp, String tag, long amount, long balance, boolean confirmed) {
+		this.epoch = epoch;
 		this.timestamp = timestamp;
 		this.tag = tag;
 		this.amount = amount;

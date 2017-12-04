@@ -23,6 +23,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ApplicationWindow {
 
@@ -59,11 +61,16 @@ public class ApplicationWindow {
 	 * Create the application.
 	 */
 	public ApplicationWindow() {
-		ctx = new AppContext();
+		ctx = new AppContext(this);
 		initialize();
 		
-		for (HistoryEntry e : ctx.getApi().getHistory())
-			historypanel.getModel().addEntry(e);
+		refreshHistory();
+	}
+	
+	public void refreshHistory() {
+		List<HistoryEntry> history = ctx.getApi().getHistory();
+		historypanel.getModel().setHistory(history);
+		
 	}
 
 	/**

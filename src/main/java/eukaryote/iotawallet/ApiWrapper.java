@@ -100,7 +100,7 @@ public class ApiWrapper {
 			String tag = t.getTag().replaceFirst("9+$", "");
 
 			if (!t.getBundle().equals(prevbundle)) {
-				ret.add(new HistoryEntry(datetime, tag, t.getValue(), balance, states[i]));
+				ret.add(new HistoryEntry(t.getTimestamp(), datetime, tag, t.getValue(), balance, states[i]));
 			} else {
 				HistoryEntry prevhist = ret.get(ret.size() - 1);
 				prevhist.balance = balance;
